@@ -2,8 +2,15 @@ load("render.star", "render")
 load("schema.star", "schema")
 
 def main(config):
-    message = "{}:{}".format(config.str("ip"), config.str("port"))
     
+    if not validate_ip(config.str("ip")):
+        message = "Invalid IP Address"
+    elif not validate_port(config.str("port")):
+        message = "Invalid Port Number"
+    else:
+        message = "{}:{}".format(config.str("ip"), config.str("port"))
+    
+
     msg = render.Text(message)
 
     return render.Root(
@@ -31,3 +38,20 @@ def get_schema():
             ),            
         ],
     )
+
+
+def validate_ip(address):
+    a = address.split('.')
+    if len(a) != 4:
+        return False
+    for x in a:
+        if not x.isdigit():
+            return False
+        i = int(x)
+        if i < 0 or i > 255:
+            return False
+    return True
+
+
+def validate_port(port):
+    return port.isdigit() and int(port) < 65535
